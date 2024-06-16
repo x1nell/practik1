@@ -27,25 +27,30 @@ body {
     line-height: 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
+    font-weight: bold;
 }
 
 .seat.available {
     background-color: #4caf50;
+    color: #ffffff;
 }
 
 .seat.booked {
     background-color: #f44336;
+    color: #ffffff;
     cursor: not-allowed;
 }
 
 .seat.archived {
     background-color: #9e9e9e;
+    color: #ffffff;
     cursor: not-allowed;
 }
 
 .seat.selected {
-    background-color: #ffeb3b;
+    background-color: #1e90ff;
+    color: #ffffff;
 }
 
 button {
