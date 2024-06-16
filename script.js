@@ -5,12 +5,17 @@ $(document).ready(function() {
     const seatsPerSession = 30;
     const dateInput = $('#date');
     const sessionsDiv = $('#sessions');
+    const reserveButton = $('#reserveButton');
+
+    let selectedSeats = [];
 
     dateInput.attr('min', getFormattedDate(-archiveDays));
     dateInput.attr('max', getFormattedDate(maxBookingDays));
     dateInput.val(getFormattedDate(0));
 
     dateInput.change(loadSessions);
+    reserveButton.click(reserveSeats);
+
     loadSessions();
 
     function getFormattedDate(offset) {
@@ -25,6 +30,8 @@ $(document).ready(function() {
         const isArchived = selectedDate < today.setDate(today.getDate() - archiveDays);
 
         sessionsDiv.empty();
+        selectedSeats = [];
+        reserveButton.prop('disabled', true);
 
         sessionTimes.forEach(time => {
             const sessionDiv = $('<div class="session"></div>');
@@ -39,7 +46,7 @@ $(document).ready(function() {
                 seat.addClass(seatStatus);
 
                 if (!isArchived && seatStatus === 'available') {
-                    seat.click(() => toggleBooking(selectedDate, time, i + 1, seat));
+                    seat.click(() => toggleSelection(selectedDate, time, i + 1, seat));
                 }
 
                 sessionDiv.append(seat);
@@ -66,19 +73,42 @@ $(document).ready(function() {
         return 'available';
     }
 
-    function toggleBooking(date, time, seatNumber, seatElement) {
-        const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+    function toggleSelection(date, time, seatNumber, seatElement) {
         const dateStr = date.toISOString().split('T')[0];
         const key = `${dateStr}-${time}-${seatNumber}`;
 
-        if (bookings[key]) {
-            delete bookings[key];
-            seatElement.removeClass('booked').addClass('available');
+        if (selectedSeats.includes(key)) {
+            selectedSeats = selectedSeats.filter(item => item !== key);
+            seatElement.removeClass('selected').addClass('available');
         } else {
-            bookings[key] = true;
-            seatElement.removeClass('available').addClass('booked');
+            selectedSeats.push(key);
+            seatElement.removeClass('available').addClass('selected');
         }
 
-        localStorage.setItem('bookings', JSON.stringify(bookings));
+        reserveButton.prop('disabled', selectedSeats.length === 0);
     }
+
+    function reserveSeats() {
+        const bookings = JSON.parse(localStorage.getItem('bookings') || '{}');
+
+        selectedSeats.forEach(key => {
+            bookings[key] = true;
+            $(`.seat.selected[data-key="${key}"]`).removeClass('selected').addClass('booked').off('click');
+        });
+
+        localStorage.setItem('bookings', JSON.stringify(bookings));
+        selectedSeats = [];
+        reserveButton.prop('disabled', true);
+    }
+
+    $(document).on('DOMNodeInserted', function(e) {
+        if ($(e.target).hasClass('seat')) {
+            const seat = $(e.target);
+            const dateStr = dateInput.val();
+            const time = seat.closest('.session').find('div:first').text().split(' ')[1];
+            const seatNumber = seat.text();
+            const key = `${dateStr}-${time}-${seatNumber}`;
+            seat.attr('data-key', key);
+        }
+    });
 });
