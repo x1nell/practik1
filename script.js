@@ -6,6 +6,8 @@ $(document).ready(function() {
     const dateInput = $('#date');
     const sessionsDiv = $('#sessions');
     const reserveButton = $('#reserveButton');
+    const confirmationModal = $('#confirmationModal');
+    const closeModal = $('.close');
 
     let selectedSeats = [];
 
@@ -15,6 +17,12 @@ $(document).ready(function() {
 
     dateInput.change(loadSessions);
     reserveButton.click(reserveSeats);
+    closeModal.click(() => confirmationModal.hide());
+    $(window).click(event => {
+        if (event.target == confirmationModal[0]) {
+            confirmationModal.hide();
+        }
+    });
 
     loadSessions();
 
@@ -39,7 +47,7 @@ $(document).ready(function() {
             sessionDiv.append(sessionLabel);
 
             for (let i = 0; i < seatsPerSession; i++) {
-                const seat = $('<div class="seat"></div>');
+                const seat = $('<div class="seat available"></div>');
                 seat.text(i + 1);
 
                 const seatStatus = getSeatStatus(selectedDate, time, i + 1);
@@ -99,6 +107,8 @@ $(document).ready(function() {
         localStorage.setItem('bookings', JSON.stringify(bookings));
         selectedSeats = [];
         reserveButton.prop('disabled', true);
+        
+        confirmationModal.show();
     }
 
     $(document).on('DOMNodeInserted', function(e) {
