@@ -16,3 +16,5 @@ Select a Date: Use the date picker to choose a date within the next week for boo
 Choose a Session: Sessions are available every 2 hours from 10:00 to 20:00.
 Select Seats: Click on available seats to select them. Selected seats will turn yellow.
 Reserve: Click the "Reserve" button to confirm your booking. Reserved seats will turn red and cannot be reselected.
+
+https://x1nell.github.io/practik1/
